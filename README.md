@@ -4,7 +4,7 @@ Tetris på DAvid kort skapat av Linus Thorsell och David Sohl
 
 ## Checklista
 * Fixa kravspecifikation [x]
-* Hämta ut hårdvara []
+* Hämta ut hårdvara [x]
 * Få projekt godkännt []
 
 ## Specifikation
@@ -31,4 +31,4 @@ En tetris klon. Med display på DAmatrix.
 
 ### Programflöde - Spelplan
 * Själva programmet modifierar en sträng i SRAM. 8x8=64 tecken långt. Där det defineras hur spelplanen ser ut. Ex rad 1: 000RR000.
-* En funktion som ritar strängen i SRAm till DAmatrix displayen.
+* En funktion som ritar strängen i SRAM till DAmatrix displayen.
