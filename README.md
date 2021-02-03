@@ -5,7 +5,17 @@ Tetris på DAvid kort skapat av Linus Thorsell och David Sohl
 ## Checklista
 * Fixa kravspecifikation [x]
 * Hämta ut hårdvara [x]
-* Få projekt godkännt []
+* Få projekt godkännt [x]
+* Få twi & spi att fungera [x]
+* Få matrix displayen att funka [x]
+* Enkla testanimationer på damatrix [x]
+* Brainstorma spelmotor []
+* Planera spelmotor []
+* Påbörja spelmotor []
+* Implementera input []
+* Spelmotor klar []
+* Finslipning klar []
+* Project inlämnat []
 
 ## Specifikation
 En tetris klon. Med display på DAmatrix.
