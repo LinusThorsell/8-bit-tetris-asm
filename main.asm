@@ -1,6 +1,12 @@
+#include "./macros.asm"
 #include "./debug.asm"
 #include "./twi.asm"
+#include "./spi.asm"
 #include "./gameboard.asm"
+#include "./damatrix_driver.asm"
+#include "./waits.asm"
+#include "./gameengine.asm"
+#include "./variable_stack.asm"
 
 
 .equ  ADDR_RIGHT8 = $25
@@ -19,17 +25,25 @@
 .equ SCK = PINB5
 
 
-GAMEBOARD:
-	.db "00000000" \
-		"00000000" \
-		"000YY000" \
-		"000YY000" \
-		"00000000" \
-		"00000000" \
-		"00000000" \
-		"00000000"
-
 rjmp MAIN
+
+.dseg
+GAMEBOARD:
+	.byte 64
+	
+	    ; "YY000000","0000YY00", \
+		; "00YY0000","00YY0000", \
+		; "0000Y0BB","0Y0000BB", \
+		; "0000Y000","0Y000000", \
+		; "0000Y000","0Y000000", \
+		; "0000Y0BB","0Y0000BB", \
+		; "00YY0000","00YY0000", \
+		; "YY000000","0000YY00"
+
+.org $400
+STACK:
+
+.cseg
 
 MAIN:
 
@@ -39,118 +53,43 @@ MAIN:
 	ldi		r16,LOW(RAMEND)
 	out		SPL,r16
 
-	call 	WAIT_L
+	ldi 	YH,HIGH(STACK)
+	ldi 	YL,LOW(STACK)
 
-    ;call    logger_init
-	call    SPI_INIT
-	call 	WAIT_L
-    ; ldi     r16,9
-    ; call    RIGHT8_WRITE
-    
-    ; ldi     r16,9
-	; call 	LEFT8_WRITE	
-	;	call 	TWI_READ
+	ldi 	r16,100
 
-    ;call    WRITE_RAW
+	call 	gameboard_init
+	call	gamestate_init
+	call	logger_init
 
-	;ldi		r16,1
-	;out		PB2,r16
-
-	ldi 	r16,0b00000000
-	; ldi 	r16,0b11111111
-	call 	SPI_SEND
-	ldi 	r16,0b00000000
-	; ldi 	r16,0b11111111
-	call 	SPI_SEND
-	; ldi 	r16,0b00000000
-	ldi 	r16,0b11111111
-	call 	SPI_SEND
-	ldi 	r16,0b00000000
-	call 	SPI_SEND
-
-	; ldi 	r16,0b00000000
-	ldi 	r16,0b11111111
-	call 	SPI_SEND
-	ldi 	r16,0b00000000
-	; ldi 	r16,0b11111111
-	call 	SPI_SEND
-	ldi 	r16,0b00000000
-	; ldi 	r16,0b11111111
-	call 	SPI_SEND
-	ldi 	r16,0b00000000
-	call 	SPI_SEND
+	; First in stack
+	_LIT $F0
 	
-	ldi 	r16,(0 << CS)|(1 << MOSI)|(1 << SCK)
-	out 	SPI_DDR,r16
+	_LIT $54
+	_LIT $55
+	_LIT $64
+	_LIT $65
+	
+	_LIT $38
+	_LIT $37
+	_LIT $36
+	_LIT $35
 
-	; ldi		r16,1
-	; out		PB2,r16
-	; call 	WAIT
-	; ldi		r16,0
-	; out		PB2,r16
-	;call 	PRINT_GAMEBOARD
 
 AGAIN:
-    ;ldi     r16,(ADDR_BUTTON  << 1) | 1
-	;call	TWI_READ
-	;call	logger_skicka
-	;ldi 	r16,$0A
-	;call 	logger_skicka
+	; get input
+	; handle input
+	; update board
 
-	call 	PRINT_GAMEBOARD
+	call	damatrix_draw
+	call	gamestate_draw_stack
+	
+	dec 	r16
+	cpi 	r16,0
+	brne 	AGAIN
+	;call 	update_gamestate
+	;ldi		r16,0b01001010
+	;call	gamestate_draw_block
+	ldi 	r16,100
 
-	rjmp 	AGAIN
-
-
-
-SPI_INIT:
-	push 	r16
-
-	ldi 	r16,(1 << CS)|(1 << MOSI)|(1 << SCK)
-	out 	SPI_DDR,r16
-	ldi 	r16,(1 << SPE)|(1 << MSTR)|(1 << SPR1)|(1 << SPR0)
-	out 	SPCR,r16
-
-	pop 	r16
-	ret
-
-SPI_SEND:
-
-	push	r17
-	push	r18	
-
-	out 	SPDR,r16
-
-SPI_SEND_WAIT:
- 	in 		r17,SPSR
- 	ldi 	r18,(1<<SPIF)
- 	and 	r17,r18
-
- 	cpi 	r17,$00
- 	breq 	SPI_SEND_WAIT
-
-	call	WAIT_L
-
-	pop		r18
-	pop 	r17
-	ret
-
-WAIT:
-    push    r16
-	ldi 	r16,$B0
-WAIT_1:
-	inc 	r16
-	brne 	WAIT_1
-    pop     r16
-	ret
-
-WAIT_L:
-; 	push 	r16
-; 	ldi 	r16,$E0
-; WAIT_L_1:
-; 	adiw	r24,1	; ~16ms
-; 	brne	WAIT_L_1
-; 	inc 	r16
-; 	brne 	WAIT_L_1
-; 	pop 	r16
-	ret
+	jmp 	AGAIN

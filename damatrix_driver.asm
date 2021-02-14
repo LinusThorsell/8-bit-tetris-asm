@@ -10,8 +10,8 @@ damatrix_draw:
     
     ldi     r21,0b00000001
     
-    ldi ZH,HIGH(GAMEBOARD*2)
-    ldi ZL,LOW(GAMEBOARD*2)
+    ldi     ZH,HIGH(GAMEBOARD)
+    ldi     ZL,LOW(GAMEBOARD)
 
 damatrix_draw_loop:
     call    SPI_START
@@ -63,51 +63,12 @@ damatrix_draw_loop:
 	mov 	r16,r21
     com     r16
 	call 	SPI_SEND
-    
-    ; ;Lower display
-	; ;BLUE
-	; ldi		r16,0b11111111
-	; call 	SPI_SEND
-
-	; ;GREEN
-	; ldi		r16,0b11111111
-	; call 	SPI_SEND
-
-	; ;RED
-	; ldi		r16,0b11111111
-	; call 	SPI_SEND
-
-	; ;ANODE
-	; ldi 	r16,0b00000000
-    ; com     r16
-	; call 	SPI_SEND
 
     call    SPI_END
 
     lsl     r21
     cpi     r21,0b00000000
     brne    damatrix_draw_loop
-
-    ; call    SPI_START
-    ; ;Lower display
-	; ;BLUE
-	; ldi		r16,0b00000000
-	; call 	SPI_SEND
-
-	; ;GREEN
-	; ldi		r16,0b00000000
-	; call 	SPI_SEND
-
-	; ;RED
-	; ldi		r16,0b00000000
-	; call 	SPI_SEND
-
-	; ;ANODE
-	; ldi 	r16,0b00000000
-    ; com     r16
-	; call 	SPI_SEND
-
-    ; call    SPI_END
 
     pop     r21
     pop     r20
@@ -124,11 +85,12 @@ damatrix_translate:
 
 damatrix_translate_loop:
 
+    ;shifta alla register
     lsl     r17
     lsl     r18
     lsl     r19
 
-    lpm       r16,Z+
+    ld      r16,Z+
 
     ;r17 = röd
     ;r18 = grön
@@ -160,125 +122,12 @@ PRIVATE_GUL:
     ori     r18,0b00000001
     
 PRIVATE_NOT:
-
-    ; ori r19,0b00000001
-
-    ;shifta alla register
-
-
     inc     r20
     cpi     r20,8
     brne    damatrix_translate_loop  
 
 PRIVATE_MATRIX_END:
-
     ret
-
-; damatrix_loop:
-; 	call 	SPI_START
-
-; 	;Upper display
-; 	;BLUE
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$0
-; 	call 	SPI_SEND
-
-; 	;GREEN
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$FF
-; 	call 	SPI_SEND
-
-; 	;RED
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$00
-; 	call 	SPI_SEND
-; 	;ANODE
-; 	ldi 	r16,0b00000000
-; 	call 	SPI_SEND
-
-; 	;Lower display
-; 	;BLUE
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$0
-; 	call 	SPI_SEND
-
-; 	;GREEN
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$FF
-; 	call 	SPI_SEND
-
-; 	;RED
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$0
-; 	call 	SPI_SEND
-; 	;ANODE
-; 	ldi 	r16,0b00000000
-; 	call 	SPI_SEND
-	
-; 	call 	SPI_END
-
-; 	call	WAIT_LL
-
-; 	; ldi 	r16,(1 << CS)|(1 << MOSI)|(1 << SCK)
-; 	; out 	SPI_DDR,r16
-
-; 	call 	SPI_START
-	
-; 	;Upper display
-; 	;BLUE
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$0
-; 	call 	SPI_SEND
-
-; 	;GREEN
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$0
-; 	call 	SPI_SEND
-
-; 	;RED
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$FF
-; 	call 	SPI_SEND
-; 	;ANODE
-; 	ldi 	r16,0b00000000
-; 	call 	SPI_SEND
-
-; 	;Lower display
-; 	;BLUE
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$0
-; 	call 	SPI_SEND
-
-; 	;GREEN
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$0
-; 	call 	SPI_SEND
-
-; 	;RED
-; 	; ldi 	r16,0b00000000
-; 	; ldi 	r16,0b11111111
-; 	ldi		r16,$FF
-; 	call 	SPI_SEND
-; 	;ANODE
-; 	ldi 	r16,0b00000000
-; 	call 	SPI_SEND
-
-; 	call 	SPI_END
-
-; 	call	WAIT_LL
-
-;     jmp damatrix_loop
 
 damatrix_driver_private_end:
     nop
