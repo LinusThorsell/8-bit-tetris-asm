@@ -1,5 +1,3 @@
-jmp damatrix_driver_private_end
-
 damatrix_draw:
     push    r16
     push    r17
@@ -129,6 +127,60 @@ PRIVATE_NOT:
 PRIVATE_MATRIX_END:
     ret
 
-damatrix_driver_private_end:
-    nop
-    nop
+damatrix_clear:
+    push     r16
+    ; push     r17
+
+    call    SPI_START
+
+    ; ldi     r17,8
+
+; damatrix_clear_loop:
+    ; dec     r17
+    ; cpi     r17,0
+    ; breq    damatrix_clear_end
+
+    ; ldi		r16,$FF
+	; call 	SPI_SEND
+
+    ;Upper display
+	;BLUE
+	ldi		r16,$00
+	call 	SPI_SEND
+
+	;GREEN
+	ldi		r16,$00
+	call 	SPI_SEND
+
+	;RED
+	ldi		r16,$00
+	call 	SPI_SEND
+
+	;ANODE
+	ldi 	r16,$00
+	call 	SPI_SEND
+    
+    ;Lower display new
+	;BLUE
+	ldi		r16,$00
+	call 	SPI_SEND
+
+	;GREEN
+	ldi		r16,$00
+	call 	SPI_SEND
+
+	;RED
+	ldi		r16,$00
+	call 	SPI_SEND
+
+	;ANODE
+	ldi 	r16,$00
+	call 	SPI_SEND
+
+; damatrix_clear_end:
+
+    call    SPI_END
+
+    ; pop     r17
+    pop     r16
+    ret

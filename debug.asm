@@ -16,8 +16,6 @@
 	.equ BAUD = 74880
 	.equ BAUDRATE = freq/(BAUD*16)-1
 
-jmp logger_private_end
-
 logger_init:
     push r16
 	; Sätt Baudrate
@@ -50,6 +48,3 @@ logger_private_wait:
     adiw    r24,1
     brne    logger_private_wait
     ret
-
-logger_private_end:
-    nop

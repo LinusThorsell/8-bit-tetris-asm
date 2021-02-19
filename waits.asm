@@ -1,5 +1,3 @@
-jmp waits_private_end
-
 WAIT:
     push    r16
 	ldi 	r16,$B0
@@ -24,7 +22,3 @@ WAIT_LL:
  	brne 	WAIT_LL_1
  	pop 	r16
 	ret
-
-waits_private_end:
-    nop
-    nop

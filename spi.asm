@@ -1,5 +1,3 @@
-jmp spi_private_end
-
 SPI_START:
 	push 	r16
 
@@ -17,7 +15,7 @@ SPI_END:
 	ret
 
 SPI_SEND:
-
+	ret
 	push	r17
 	push	r18	
 
@@ -34,7 +32,3 @@ SPI_SEND_WAIT:
 	pop		r18
 	pop 	r17
 	ret
-
-spi_private_end:
-    nop
-    nop

@@ -1,3 +1,4 @@
+jmp MAIN
 #include "./macros.asm"
 #include "./debug.asm"
 #include "./twi.asm"
@@ -6,7 +7,6 @@
 #include "./damatrix_driver.asm"
 #include "./waits.asm"
 #include "./gameengine.asm"
-#include "./variable_stack.asm"
 
 
 .equ  ADDR_RIGHT8 = $25
@@ -23,9 +23,6 @@
 .equ MOSI = PINB3
 .equ MISO = PINB4
 .equ SCK = PINB5
-
-
-rjmp MAIN
 
 .dseg
 GAMEBOARD:
@@ -65,22 +62,30 @@ MAIN:
 	; First in stack
 	_LIT $F0
 	
-	_LIT $54
-	_LIT $55
-	_LIT $64
-	_LIT $65
+	_LIT $51
+	_LIT $52
+	_LIT $61
+	_LIT $62
 	
-	_LIT $38
-	_LIT $37
-	_LIT $36
-	_LIT $35
+	_LIT $31
+	_LIT $32
+	_LIT $33
+	_LIT $34
+
+	_LIT $E0
+
+	_LIT $2A
+	_LIT $2B
+	_LIT $3A
+	_LIT $3B
+
 
 
 AGAIN:
 	; get input
 	; handle input
 	; update board
-
+	call 	damatrix_clear
 	call	damatrix_draw
 	call	gamestate_draw_stack
 	
@@ -90,6 +95,7 @@ AGAIN:
 	;call 	update_gamestate
 	;ldi		r16,0b01001010
 	;call	gamestate_draw_block
+	call 	gamestate_update_board
 	ldi 	r16,100
 
 	jmp 	AGAIN

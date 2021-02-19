@@ -1,5 +1,3 @@
-rjmp gameboard_end
-
 ; PRINT_GAMEBOARD:
 ; 	push 	r16
 ; 	push 	r17
@@ -57,7 +55,3 @@ gameboard_private_loop:
 	pop 	r17
 	pop 	r16
 	ret	
-
-gameboard_end:
-    nop
-    nop

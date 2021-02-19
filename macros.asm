@@ -1,6 +1,3 @@
-rjmp macros_private_end
-
-
 .macro _LIT
     st      -Y,r20
     ldi     r20,@0
@@ -20,14 +17,10 @@ rjmp macros_private_end
 .endmacro
 
 .macro _SWAP
-    mov r3,r16
-    ld r16,Y+
+    mov r3,r20
+    ld r20,Y+
     st -Y,r3
 .endmacro
-
-macros_private_end:
-    nop
-    nop
 
     ; stack x=0000 y=0000 0000 0000
     ; x=0000 y=0000
