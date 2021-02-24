@@ -96,25 +96,40 @@ damatrix_translate_loop:
 
 
     ; kolla om det är ett R
-    cpi     r16,$52
+    cpi     r16,'R'
     brne    PRIVATE_GRON
     ori     r17,0b00000001
     
 PRIVATE_GRON:
     ; kolla om det är ett G
-    cpi     r16,$47
-    brne    PRIVATE_BLA
+    cpi     r16,'G'
+    brne    PRIVATE_VIT
     ori     r18,0b00000001
+    
+PRIVATE_VIT:
+    ; kolla om det är ett W
+    cpi     r16,'W'
+    brne    PRIVATE_BLA
+    ori     r17,0b00000001
+    ori     r18,0b00000001
+    ori     r19,0b00000001
     
 PRIVATE_BLA:
     ; kolla om det är ett B
-    cpi     r16,$42
-    brne    PRIVATE_GUL
+    cpi     r16,'B'
+    brne    PRIVATE_LIL
     ori     r19,0b00000001
     
+PRIVATE_LIL:
+    ; kolla    
+    cpi     r16,'P'
+    brne    PRIVATE_GUL
+    ori     r17,0b00000001
+    ori     r19,0b00000001
+
 PRIVATE_GUL:
     ; kolla Y
-    cpi     r16,$59
+    cpi     r16,'Y'
     brne    PRIVATE_NOT
     ori     r17,0b00000001
     ori     r18,0b00000001

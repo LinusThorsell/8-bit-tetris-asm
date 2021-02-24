@@ -15,7 +15,7 @@ SPI_END:
 	ret
 
 SPI_SEND:
-	ret
+	;ret
 	push	r17
 	push	r18	
 

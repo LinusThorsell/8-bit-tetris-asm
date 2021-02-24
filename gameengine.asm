@@ -47,7 +47,7 @@ gamestate_init:
     ldi     ZH,HIGH(GAMEBOARD)
     ldi     ZL,LOW(GAMEBOARD)
 
-    ldi     r19,'B'
+    ldi     r19,'W'
     sts     GAMEBOARD+0,r19
     sts     GAMEBOARD+16,r19
     sts     GAMEBOARD+32,r19
@@ -81,7 +81,7 @@ gamestate_draw_block: ;r16 = x=0000 y=0000
     add     r16,r0
 
     add     ZL,r16
-    ldi     r17,'Y'
+    mov     r17,r23
     st      Z,r17
 
     pop     r18
@@ -126,7 +126,7 @@ gamestate_draw_stack_start:
     mov     r16,r20
     _DROP
     
-    cpi     r16,$F0
+    cpi     r16,$E0
     breq    gamestate_draw_stack_end
     
     inc     r17
@@ -219,12 +219,13 @@ lookup_position: ; r16 x & y
     add     r16,r0
 
     add     ZL,r16
+	dec		ZL
 
     ld      r16,Z
 
-    cpi     r16,'B'
+    cpi     r16,0
 
-    breq    lookup_position_end
+    brne    lookup_position_end
     ldi     r16,1
 
 lookup_position_end:
@@ -339,5 +340,126 @@ can_block_move_finished_2:
 make_new_block:
 
     ; TODO: Flytta $E0 längst ner på stacken och lägg till nytt block.
+    push    r17
+    ldi     r17,4 ; blocken är alltid 4 pixlar
+    call    move_endstop_down
+    pop     r17
+
+    call    add_new_block
 
     ret
+
+move_endstop_down:
+    mov     r16,r20
+    _DROP
+
+    cpi     r16,$E0
+    breq    move_endstop_down_back
+
+    push    r16
+    rjmp move_endstop_down
+
+move_endstop_down_back:
+    pop     r16
+    _LITr16
+
+    dec     r17
+    cpi     r17,0
+    brne    move_endstop_down_back
+
+    ldi     r16,$E0
+    _LITr16
+
+    ret
+
+; add_new_block:
+
+;     cpi     r23,'Y'
+;     breq    set_color_purple
+;     ldi     r23,'Y'
+
+;     rjmp set_color_finished
+; set_color_purple:
+;     ldi     r23,'P'
+; set_color_finished:
+
+;     _LIT $5E
+; 	_LIT $5F
+; 	_LIT $6E
+; 	_LIT $6F
+;     ret
+
+add_new_block:
+	cpi 	r23,'R'
+	breq	set_color_red
+	cpi 	r23,'G'
+	breq	set_color_green
+	cpi 	r23,'B'
+	breq	set_color_blue
+	cpi 	r23,'P'
+	breq	set_color_purple
+	cpi 	r23,'Y'
+	breq	set_color_yellow
+	
+set_color_red:
+	ldi 	r23,'G'
+	
+	_LIT $5F
+	_LIT $4F
+	_LIT $4E
+	_LIT $3E
+	
+	rjmp 	set_color_finished
+set_color_green:
+	ldi 	r23,'B'
+	
+	_LIT $3F
+	_LIT $4F
+	_LIT $5F
+	_LIT $5E
+	
+	rjmp 	set_color_finished
+set_color_blue:
+	ldi 	r23,'P'
+	
+	_LIT $3F
+	_LIT $4F
+	_LIT $5F
+	_LIT $4E
+	
+	rjmp 	set_color_finished
+set_color_purple:
+	ldi 	r23,'Y'
+	
+	_LIT $3F
+	_LIT $4F
+	_LIT $3E
+	_LIT $4E
+	
+	rjmp 	set_color_finished
+set_color_yellow:
+	ldi 	r23,'R'
+	
+	_LIT $3F
+	_LIT $4F
+	_LIT $4E
+	_LIT $5E
+	
+	rjmp 	set_color_finished
+	
+set_color_finished:
+	ret
+
+read_keys:
+    push 	r16
+	ldi 	r16,(ADDR_BUTTON  << 1) | 1
+	call 	TWI_READ
+	; call 	WRITE_RAW
+
+    ;code for moving left and right
+
+    
+
+	pop 	r16
+    ret
+

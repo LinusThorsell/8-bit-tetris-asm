@@ -20,6 +20,7 @@ WRITE_RAW: ; Skriv ut data i r16 på höger 7seg
     push    r17
     
     ldi     r17,(ADDR_RIGHT8  << 1) | 0
+    ; ldi     r17,(ADDR_LCD  << 1) | 0
     call    TWI_SEND
 
     pop     r17
