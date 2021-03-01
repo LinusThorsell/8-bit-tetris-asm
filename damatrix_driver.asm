@@ -94,7 +94,6 @@ damatrix_translate_loop:
     ;r18 = grön
     ;r19 = blå
 
-
     ; kolla om det är ett R
     cpi     r16,'R'
     brne    PRIVATE_GRON

@@ -7,6 +7,7 @@ jmp MAIN
 #include "./gameboard.asm"
 #include "./damatrix_driver.asm"
 #include "./waits.asm"
+#include "./gameengine_line.asm"
 #include "./gameengine.asm"
 
 
@@ -28,7 +29,7 @@ jmp MAIN
 ; r23 current color
 .dseg
 GAMEBOARD:
-	.byte 64
+	.byte 128
 	
 	    ; "YY000000","0000YY00", \
 		; "00YY0000","00YY0000", \
@@ -39,9 +40,11 @@ GAMEBOARD:
 		; "00YY0000","00YY0000", \
 		; "YY000000","0000YY00"
 
-.org $400
-STACK:
+MOVEMENT_DIRECTION:
+	.byte 1
 
+.org $500
+STACK:
 .cseg
 
 MAIN:
@@ -55,7 +58,7 @@ MAIN:
 	ldi 	YH,HIGH(STACK)
 	ldi 	YL,LOW(STACK)
 
-	ldi 	r16,100
+	ldi 	r16,1
 
 	call 	gameboard_init
 	call	gamestate_init
@@ -76,10 +79,10 @@ MAIN:
 	ldi 	r23,'Y'
 	_LIT $E0
 
-	_LIT $2A
-	_LIT $2B
-	_LIT $3A
-	_LIT $3B
+	_LIT $1A
+	_LIT $0B
+	_LIT $0A
+	_LIT $1B
 
 	; call 	LCD_INIT
 
@@ -116,6 +119,6 @@ AGAIN:
 	cpi 	r16,0
 	brne 	AGAIN
 	call 	gamestate_update_board
-	ldi 	r16,100
-
+	ldi 	r16,1
+	
 	jmp 	AGAIN
