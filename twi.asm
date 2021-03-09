@@ -60,16 +60,21 @@ READ_8_LOOP:
     ret
 
 RIGHT8_WRITE:
+    push    r17
     ldi     r17,(ADDR_RIGHT8  << 1) | 0
     rjmp    BOTH_WRITE
 LEFT8_WRITE:
+    push    r17
     ldi     r17,(ADDR_LEFT8  << 1) | 0
 BOTH_WRITE:
     call    SRAM_CONVERTER
     call    TWI_SEND
+    pop     r17
     ret
 
 SRAM_CONVERTER:
+    push    ZH
+    push    ZL
 
     ldi     ZH,HIGH(SRAM_CONVERTER_DATA*2)
     ldi     ZL,LOW(SRAM_CONVERTER_DATA*2)
@@ -77,6 +82,8 @@ SRAM_CONVERTER:
     add     ZL,r16
     lpm     r16,Z
 
+    pop     ZL
+    pop     ZH
     ret
 
 TWI_SEND: ; r16 data, r17 adress
@@ -97,6 +104,8 @@ TWI_SEND: ; r16 data, r17 adress
 	call	CLK ; Vänta på Ack
 
 	call 	STOP ; Stoppa TWI Länken
+
+    mov     r16,r18 ; Ladda tillbaka indata
 
     pop     r18
 	ret
@@ -170,3 +179,61 @@ CLK:
     sbi      DDRC ,SCL
     call     WAIT
     ret
+
+TWI_STARTV2:
+	
+    ldi r16,0b00000111
+    sts TWBR,r16
+
+	ldi r16, (1<<TWINT)|(1<<TWSTA)|(1<<TWEN)
+	sts TWCR, r16
+
+	ret
+
+TWI_ENDV2:
+
+	ldi r16,(1<<TWINT)|(1<<TWEN)|(1<<TWSTO)
+	sts TWCR, r16 
+
+	ret
+
+TWI_SENDV2:
+    push    r18
+    push    r19
+
+    mov     r19,r17
+    mov     r18,r16
+
+	call TWI_STARTV2
+
+TWI_WAIT1V2:
+	lds r16,TWCR
+	sbrs r16,TWINT
+	rjmp TWI_WAIT1V2
+
+	mov r16, r19
+	sts TWDR, r16
+	ldi r16, (1<<TWINT) | (1<<TWEN)
+	sts TWCR, r16
+
+TWI_WAIT2V2:
+	lds r16,TWCR
+	sbrs r16,TWINT
+	rjmp TWI_WAIT2V2
+
+	mov r16, r18
+	sts TWDR, r16
+	ldi r16, (1<<TWINT) | (1<<TWEN)
+	sts TWCR, r16	
+
+TWI_WAIT3V2:
+	lds r16,TWCR
+	sbrs r16,TWINT
+	rjmp TWI_WAIT3V2
+
+	call TWI_ENDV2
+
+    pop    r19
+    pop    r18
+
+	ret

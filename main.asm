@@ -15,8 +15,8 @@ jmp MAIN
 .equ  ADDR_LEFT8 = $24
 .equ  ADDR_BUTTON = $27
 .equ  ADDR_LCD = $20
-;.equ  SLA_W         = (ADDR_RIGHT8  << 1) | 0
-;.equ  SLA_R         = (ADDR_RIGHT8  << 1) | 1
+.equ  SLA_W         = (ADDR_RIGHT8  << 1) | 0
+.equ  SLA_R         = (ADDR_RIGHT8  << 1) | 1
 .equ SCL = PC5
 .equ SDA = PC4
 .equ DATA = 0b01010101
@@ -43,6 +43,9 @@ GAMEBOARD:
 MOVEMENT_DIRECTION:
 	.byte 1
 
+SCORE:
+	.byte 2
+
 .org $500
 STACK:
 .cseg
@@ -57,12 +60,13 @@ MAIN:
 
 	ldi 	YH,HIGH(STACK)
 	ldi 	YL,LOW(STACK)
-
-	ldi 	r16,1
-
+	
 	call 	gameboard_init
 	call	gamestate_init
 	call	logger_init
+
+
+	; call 	LCD_INIT
 
 	; First in stack
 	_LIT $F0
@@ -84,20 +88,25 @@ MAIN:
 	_LIT $0A
 	_LIT $1B
 
-	; call 	LCD_INIT
-
-	push 	r16
-	push  	r17
-	ldi 	r17,$40
-	ldi 	r16,8
-	call 	TWI_SEND
-	pop 	r17
-	pop 	r16
+	ldi 	r16,0
+	sts 	SCORE,r16
+	call 	gamestate_write_score
+	
+;backlight
+	; push 	r16
+	; push  	r17
+	; ldi 	r17,$40
+	; ldi 	r16,8
+	; ; ldi 	r16,0
+	; call 	TWI_SEND
+	; pop 	r17
+	; pop 	r16
 
 	; ldi 	r16,0b00001000
 	; ldi 	r16,0b00000000
 	; call 	WRITE_RAW
 
+	ldi 	r16,50
 AGAIN:
 
 	; call 	LCD_INIT
@@ -110,7 +119,7 @@ AGAIN:
 	; handle input
 	; update board
 
-	;call 	damatrix_clear
+	; call 	damatrix_clear
 	call	damatrix_draw
 	call	gamestate_draw_stack
 	call 	read_keys
@@ -119,6 +128,7 @@ AGAIN:
 	cpi 	r16,0
 	brne 	AGAIN
 	call 	gamestate_update_board
+	call 	gamestate_write_score
 	ldi 	r16,1
 	
 	jmp 	AGAIN

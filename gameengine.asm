@@ -166,7 +166,6 @@ gamestate_update_board:
     cpi     r22,1
     breq    gamestate_update_board_to_move
     ; ANNARS
-    call	gameengine_check_lines
     call    make_new_block
     ; SPAWNA NYTT BLOCK SEN FORTSÄTT
 
@@ -250,6 +249,9 @@ lookup_position_left: ; r16 x & y
     andi    r17,$F0
     swap    r17
 
+    cpi     r17,$00
+    breq    lookup_position_end_left
+
     ldi     r18,16
     mul     r17,r18
 
@@ -283,6 +285,9 @@ lookup_position_right: ; r16 x & y
     andi    r16,$0F
     andi    r17,$F0
     swap    r17
+    
+    cpi     r17,$08
+    breq    lookup_position_end_right
 
     ldi     r18,16
     mul     r17,r18
@@ -525,7 +530,7 @@ move_endstop_down_back:
 ;     ret
 
 add_new_block:
-
+    call	gameengine_check_lines
     call    gameengine_cleanup_stack
 
 	cpi 	r23,'R'
