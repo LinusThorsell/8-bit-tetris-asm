@@ -173,6 +173,11 @@ gamestate_update_board_to_move:
 
     push    r16
     push    r17
+
+    lds     r17,MOV_DOWN
+    inc     r17
+    sts     MOV_DOWN,r17
+
     ldi     r17,0
 
 gamestate_update_board_start:
@@ -217,6 +222,11 @@ lookup_position_down: ; r16 x & y
     andi    r17,$F0
     swap    r17
 
+    cpi     r17,$FF
+    breq    lookup_position_end_down
+    cpi     r17,$08
+    breq    lookup_position_end_down
+
     ldi     r18,16
     mul     r17,r18
 
@@ -250,7 +260,7 @@ lookup_position_left: ; r16 x & y
     swap    r17
 
     cpi     r17,$00
-    breq    lookup_position_end_left
+    breq    lookup_position_end_no_left
 
     ldi     r18,16
     mul     r17,r18
@@ -269,6 +279,9 @@ lookup_position_left: ; r16 x & y
     brne    lookup_position_end_left
     ldi     r16,1
 
+    rjmp    lookup_position_end_left
+lookup_position_end_no_left:
+    ldi     r16,0
 lookup_position_end_left:
     pop     r17
     pop     r18
@@ -286,8 +299,8 @@ lookup_position_right: ; r16 x & y
     andi    r17,$F0
     swap    r17
     
-    cpi     r17,$08
-    breq    lookup_position_end_right
+    cpi     r17,$07
+    breq    lookup_position_end_no_right
 
     ldi     r18,16
     mul     r17,r18
@@ -305,7 +318,10 @@ lookup_position_right: ; r16 x & y
 
     brne    lookup_position_end_right
     ldi     r16,1
-
+    
+    rjmp    lookup_position_end_left
+lookup_position_end_no_right:
+    ldi     r16,0
 lookup_position_end_right:
     pop     r17
     pop     r18
@@ -530,87 +546,121 @@ move_endstop_down_back:
 ;     ret
 
 add_new_block:
+    push    r17
     call	gameengine_check_lines
     call    gameengine_cleanup_stack
 
-	cpi 	r23,'R'
-	breq	set_color_red
-	cpi 	r23,'G'
-	breq	set_color_green
-	cpi 	r23,'B'
-	breq	set_color_blue
-	cpi 	r23,'P'
-	breq	set_color_purple
-	; cpi 	r23,'Y'
-	; breq	set_color_yellow
+    lds     r17,MOV_DOWN
+    ldi     r17,0
+    sts     MOV_DOWN,r17
+    lds     r17,MOV_RIGHT
+    ldi     r17,0
+    sts     MOV_RIGHT,r17
+    
+    lds     r23,BLOCK_TYPE
+
+	cpi 	r23,6
+	breq	set_color_o_block
+	cpi 	r23,0
+	breq	set_color_i_block
+	cpi 	r23,1
+	breq	set_color_t_block
+	cpi 	r23,2
+	breq	set_color_j_block
 	
-set_color_red:
-	ldi 	r23,'G'
+    rjmp    set_color_extended
+set_color_o_block:
+	ldi     r17,0
+    sts     BLOCK_TYPE,r17
+    ldi 	r23,'Y'
 	
-	; _LIT $5F
-	; _LIT $4F
-	; _LIT $4E
-	; _LIT $3E
-	_LIT $0F
-	_LIT $1F
-	_LIT $0E
-	_LIT $1E
+	_LIT $3F
+	_LIT $4F
+	_LIT $4E
+	_LIT $3E
 	
 	rjmp 	set_color_finished
-set_color_green:
+set_color_i_block:
+    ldi     r17,1
+    sts     BLOCK_TYPE,r17
 	ldi 	r23,'B'
 	
-	; _LIT $3F
-	; _LIT $4F
-	; _LIT $5F
-	; _LIT $5E
 	_LIT $2F
 	_LIT $3F
-	_LIT $2E
-	_LIT $3E
-
-	rjmp 	set_color_finished
-set_color_blue:
-	ldi 	r23,'P'
-	
-	; _LIT $3F
-	; _LIT $4F
-	; _LIT $5F
-	; _LIT $4E
 	_LIT $4F
 	_LIT $5F
+	
+	rjmp 	set_color_finished
+set_color_t_block:
+	ldi 	r23,'P'
+    ldi     r17,2
+    sts     BLOCK_TYPE,r17
+
+	_LIT $3F
+	_LIT $4F
+	_LIT $5F
+	_LIT $4E
+
+	rjmp 	set_color_finished
+set_color_j_block:
+	ldi 	r23,'B'
+	ldi     r17,3
+    sts     BLOCK_TYPE,r17
+    
+	_LIT $3F
+	_LIT $3E
 	_LIT $4E
 	_LIT $5E
 	
 	rjmp 	set_color_finished
-set_color_purple:
+
+set_color_extended:
+	cpi 	r23,3
+	breq	set_color_l_block
+    cpi 	r23,4
+	breq	set_color_s_block
+    cpi 	r23,5
+	breq	set_color_z_block
+
+set_color_l_block:
 	ldi 	r23,'R'
-	
-	; _LIT $3F
-	; _LIT $4F
-	; _LIT $3E
-	; _LIT $4E
-	_LIT $6F
-	_LIT $7F
-	_LIT $6E
-	_LIT $7E
-	
-; 	rjmp 	set_color_finished
-; set_color_yellow:
-; 	ldi 	r23,'R'
-	
-; 	; _LIT $3F
-; 	; _LIT $4F
-; 	; _LIT $4E
-; 	; _LIT $5E
-; 	_LIT $6F
-; 	_LIT $7F
-; 	_LIT $6E
-; 	_LIT $7E
+	ldi     r17,4
+    sts     BLOCK_TYPE,r17
+
+	_LIT $3E
+	_LIT $4E
+	_LIT $5E
+	_LIT $5F
 	
 	rjmp 	set_color_finished
+set_color_s_block:
+    ldi     r17,5
+    sts     BLOCK_TYPE,r17
+	ldi 	r23,'G'
 	
+	_LIT $3E
+	_LIT $4E
+	_LIT $4F
+	_LIT $5F
+	
+	rjmp 	set_color_finished
+set_color_z_block:
+    ldi 	r23,'R'
+    ldi     r17,6
+    sts     BLOCK_TYPE,r17
+
+	_LIT $3F
+	_LIT $4F
+	_LIT $4E
+	_LIT $5E
+
+	rjmp 	set_color_finished
+
 set_color_finished:
+
+    call  gameover_check 
+
+    pop    r17
 	ret
 
 read_keys:
@@ -622,11 +672,15 @@ read_keys:
 	; call 	RIGHT8_WRITE
 
     ;code for moving left and right
+    ;L2: 0b01110111 R2: 0b01111110
+
     mov     r18,r16
     cpi     r16, 0b01111101 ; move right
     breq    read_keys_end_right
     cpi     r16, 0b01111011 ; move left
     breq    read_keys_end_left
+    cpi     r16, 0b01111110 ; rotate
+    breq    read_keys_end_rotate
 
     rjmp    read_keys_end
 read_keys_end_right:
@@ -634,6 +688,10 @@ read_keys_end_right:
     rjmp    read_keys_end
 read_keys_end_left:
     call    move_gamestate_update_board_left
+    rjmp    read_keys_end
+read_keys_end_rotate:
+    call    gameengine_rotate_block
+    ; call    move_gamestate_update_board_right
 read_keys_end:	
     ldi 	r16,(ADDR_BUTTON  << 1) | 1
     call 	TWI_READ
@@ -660,6 +718,11 @@ move_gamestate_update_board_to_move_left:
 
     push    r16
     push    r17
+
+    lds     r17,MOV_RIGHT
+    inc     r17
+    sts     MOV_RIGHT,r17
+
     ldi     r17,0
 
 move_gamestate_update_board_start_left:
@@ -694,6 +757,11 @@ move_gamestate_update_board_to_move_right:
 
     push    r16
     push    r17
+
+    lds     r17,MOV_RIGHT
+    dec     r17
+    sts     MOV_RIGHT,r17
+
     ldi     r17,0
 
 move_gamestate_update_board_start_right:

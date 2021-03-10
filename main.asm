@@ -7,6 +7,8 @@ jmp MAIN
 #include "./gameboard.asm"
 #include "./damatrix_driver.asm"
 #include "./waits.asm"
+#include "./gameengine_gameover.asm"
+#include "./gameengine_rotate.asm"
 #include "./gameengine_line.asm"
 #include "./gameengine.asm"
 
@@ -27,6 +29,7 @@ jmp MAIN
 .equ MISO = PINB4
 .equ SCK = PINB5
 ; r23 current color
+
 .dseg
 GAMEBOARD:
 	.byte 128
@@ -41,12 +44,26 @@ GAMEBOARD:
 		; "YY000000","0000YY00"
 
 MOVEMENT_DIRECTION:
-	.byte 1
+	.byte 2
 
 SCORE:
 	.byte 2
 
-.org $500
+BLOCK_TYPE:
+	.byte 2
+
+ROTATION_STATE:
+	.byte 2
+
+MOV_DOWN:
+	.byte 2
+MOV_RIGHT:
+	.byte 2
+
+STATES:
+	.byte 150
+
+.org $800
 STACK:
 .cseg
 
@@ -63,6 +80,7 @@ MAIN:
 	
 	call 	gameboard_init
 	call	gamestate_init
+	call	gameengine_init_states
 	call	logger_init
 
 
@@ -80,13 +98,18 @@ MAIN:
 	; _LIT $32
 	; _LIT $33
 	; _LIT $34
-	ldi 	r23,'Y'
-	_LIT $E0
+	_LIT 	$E0
 
-	_LIT $1A
-	_LIT $0B
-	_LIT $0A
-	_LIT $1B
+	ldi 	r23,0
+	sts 	MOV_DOWN,r23
+	sts 	MOV_RIGHT,r23
+	ldi		r23,1
+	sts 	ROTATION_STATE,r23
+	ldi 	r23,4
+	sts 	BLOCK_TYPE,r23
+
+	ldi 	r23,'B'
+	call 	add_new_block
 
 	ldi 	r16,0
 	sts 	SCORE,r16
@@ -106,6 +129,11 @@ MAIN:
 	; ldi 	r16,0b00000000
 	; call 	WRITE_RAW
 
+	; buzzer code
+	; ldi 	r16, $FF
+    ; out     DDRB,r16
+	; sbi     PORTB,PB1
+
 	ldi 	r16,50
 AGAIN:
 
@@ -120,8 +148,8 @@ AGAIN:
 	; update board
 
 	; call 	damatrix_clear
-	call	damatrix_draw
 	call	gamestate_draw_stack
+	call	damatrix_draw
 	call 	read_keys
 	
 	dec 	r16
@@ -129,6 +157,9 @@ AGAIN:
 	brne 	AGAIN
 	call 	gamestate_update_board
 	call 	gamestate_write_score
-	ldi 	r16,1
-	
+	push 	r17
+	ldi 	r16,100
+	lds 	r17,SCORE
+	sub 	r16,r17	
+	pop 	r17
 	jmp 	AGAIN
