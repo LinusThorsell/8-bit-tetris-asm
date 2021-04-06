@@ -23,7 +23,17 @@ gameover_check:
     cpi     r18,4
     breq    gameover_not
 
+    lds     r18,GAMEOVER_POSSIBLE
+    cpi     r18,1
+    breq    gameover_check_possible
+
+    ldi     r18,1
+    sts     GAMEOVER_POSSIBLE,r18
+    ret
+
     ; handle game over
+
+gameover_check_possible:
 
     call    gameengine_cleanup_stack
 
@@ -37,6 +47,8 @@ LOOP_GAME_OVER:
 
 	cpi     r16,0b01111111
     breq    LOOP_GAME_OVER
+
+    call    WAIT_LL
 
     call    gameengine_cleanup_stack
     

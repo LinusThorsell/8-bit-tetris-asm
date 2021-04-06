@@ -64,6 +64,9 @@ MOV_RIGHT:
 STATES:
 	.byte 150
 
+GAMEOVER_POSSIBLE:
+	.byte 1
+
 .org $800
 STACK:
 .cseg
@@ -108,6 +111,8 @@ MAIN:
 	sts 	ROTATION_STATE,r23
 	ldi 	r23,4
 	sts 	BLOCK_TYPE,r23
+	ldi 	r23,0
+	sts 	GAMEOVER_POSSIBLE,r23
 
 	ldi 	r23,'B'
 	call 	add_new_block
@@ -154,7 +159,7 @@ AGAIN:
 	call 	gamestate_update_board
 	call 	gamestate_write_score
 	push 	r17
-	ldi 	r16,50
+	ldi 	r16,100
 	lds 	r17,SCORE
 	sub 	r16,r17	
 	pop 	r17

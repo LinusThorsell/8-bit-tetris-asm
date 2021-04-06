@@ -581,6 +581,7 @@ set_color_o_block:
 	
 	rjmp 	set_color_finished
 set_color_i_block:
+
     ldi     r17,1
     sts     BLOCK_TYPE,r17
 	ldi 	r23,'B'
@@ -681,6 +682,8 @@ read_keys:
     breq    read_keys_end_left
     cpi     r16, 0b01111110 ; rotate
     breq    read_keys_end_rotate
+    cpi     r16, 0b01110111 ; move down
+    breq    read_keys_end_move_down
 
     rjmp    read_keys_end
 read_keys_end_right:
@@ -692,6 +695,9 @@ read_keys_end_left:
 read_keys_end_rotate:
     call    gameengine_rotate_block
     ; call    move_gamestate_update_board_right
+    rjmp    read_keys_end
+read_keys_end_move_down:
+    call    gameengine_move_down
 read_keys_end:	
     ldi 	r16,(ADDR_BUTTON  << 1) | 1
     call 	TWI_READ
@@ -807,4 +813,18 @@ move_gamestate_move_block_left:
     dec     r16
     swap    r16
     call    gamestate_draw_block
+    ret
+
+gameengine_move_down:
+
+    ; call    BEEP
+    call    can_block_move
+    cpi     r22,1
+    brne    gameengine_move_down_finished
+    call    gamestate_update_board
+    ; clr     r22
+    rjmp    gameengine_move_down
+
+gameengine_move_down_finished:
+    call    gamestate_update_board
     ret
