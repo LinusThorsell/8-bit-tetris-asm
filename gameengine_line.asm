@@ -398,6 +398,8 @@ score_addscore:
 
     push    r16
 
+    call    BEEP
+
     lds     r16,SCORE
     inc     r16
     sts     SCORE,r16

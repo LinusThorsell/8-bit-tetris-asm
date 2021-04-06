@@ -1,4 +1,5 @@
 jmp MAIN
+#include "./sound_fx.asm"
 #include "./macros.asm"
 #include "./lcd.asm"
 #include "./debug.asm"
@@ -129,11 +130,6 @@ MAIN:
 	; ldi 	r16,0b00000000
 	; call 	WRITE_RAW
 
-	; buzzer code
-	; ldi 	r16, $FF
-    ; out     DDRB,r16
-	; sbi     PORTB,PB1
-
 	ldi 	r16,50
 AGAIN:
 
@@ -158,7 +154,7 @@ AGAIN:
 	call 	gamestate_update_board
 	call 	gamestate_write_score
 	push 	r17
-	ldi 	r16,100
+	ldi 	r16,50
 	lds 	r17,SCORE
 	sub 	r16,r17	
 	pop 	r17

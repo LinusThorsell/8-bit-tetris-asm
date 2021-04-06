@@ -22,3 +22,14 @@ WAIT_LL:
  	brne 	WAIT_LL_1
  	pop 	r16
 	ret
+
+wait500us:
+	push 	r16
+	ldi 	r16,166
+wait500us_loop:
+	dec 	r16
+	cpi 	r16,0
+	brne 	wait500us_loop
+
+	pop 	r16
+	ret
