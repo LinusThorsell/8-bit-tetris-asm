@@ -14,8 +14,8 @@ Tetris på DAvid kort skapat av Linus Thorsell och David Sohl
 * Påbörja spelmotor [x]
 * Implementera input [x]
 * Spelmotor klar [x]
-* Finslipning klar []
-* Project inlämnat []
+* Finslipning klar [x]
+* Project inlämnat [x]
 
 ## Specifikation
 En tetris klon. Med display på DAmatrix.
